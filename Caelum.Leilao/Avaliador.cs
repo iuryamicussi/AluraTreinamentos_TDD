@@ -15,7 +15,8 @@ namespace Caelum.Leilao
 
         public void Avalia(Leilao leilao)
         {
-            if (leilao.Lances.Count <= 0) return;
+            if (leilao.Lances.Count <= 0)
+                throw new Exception("Não é possível avaliar um leilão sem lances");
 
             MenorLance = leilao.Lances.Min(m => m.Valor);
             MaiorLance = leilao.Lances.Max(m => m.Valor);

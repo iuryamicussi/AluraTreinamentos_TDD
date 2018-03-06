@@ -18,6 +18,8 @@ namespace Caelum.Leilao
 
         public void Propoe(Lance lance)
         {
+            if (lance.Valor <= 0)
+                throw new ArgumentException("O valor do lance deve ser maior que 0");
             if (Lances.Count == 0 || podeDarLance(lance.Usuario))
             {
                 Lances.Add(lance);

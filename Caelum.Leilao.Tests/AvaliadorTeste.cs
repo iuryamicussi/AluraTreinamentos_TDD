@@ -5,42 +5,48 @@ using System.Text;
 using System.Threading.Tasks;
 
 using NUnit.Framework;
-namespace Caelum.Leilao
+namespace Caelum.Leilao.Tests
 {
     [TestFixture]
     public class AvaliadorTeste
     {
-        private Leilao leilao;
         private Avaliador leiloeiro;
+        private Usuario joao;
+        private Usuario maria;
+        private Usuario jose;
 
-        public AvaliadorTeste()
+        [SetUp]
+        public void SetUp()
         {
-            DeclaraoComumDeObjetos();
+            joao = new Usuario("Joao");
+            jose = new Usuario("José");
+            maria = new Usuario("Maria");
+
+            leiloeiro = new Avaliador();
+            Console.WriteLine("inicializando teste!");
         }
 
-        public void DeclaraoComumDeObjetos()
+        [TearDown]
+        public void TearDown()
         {
-            // cenario: 3 lances em ordem crescente
-            Usuario joao = new Usuario("Joao");
-            Usuario jose = new Usuario("José");
-            Usuario maria = new Usuario("Maria");
-
-            leilao = new Leilao("Playstation 3 Novo");
-            leilao.Propoe(new Lance(maria, 250.0));
-            leilao.Propoe(new Lance(joao, 300.0));
-            leilao.Propoe(new Lance(jose, 400.0));
-
-            // executando a acao 
-            leiloeiro = new Avaliador();
-            leiloeiro.Avalia(leilao);
+            Console.WriteLine("Finalizando teste!");
         }
 
         [Test]
         public void DeveEntenderLancesEmOrdemCrescente()
         {
+            Leilao leilao = new CriadorDeLeilao().Para("Playstation 3 Novo")
+            .Lance(joao, 100.0)
+            .Lance(maria, 200.0)
+            .Lance(joao, 300.0)
+            .Lance(maria, 400.0)
+            .Constroi();
+
+            // executando a acao 
+            leiloeiro.Avalia(leilao);
             // comparando a saida com o esperado 
             double maiorEsperado = 400;
-            double menorEsperado = 250;
+            double menorEsperado = 100;
             Assert.AreEqual(maiorEsperado, leiloeiro.MaiorLance);
             Assert.AreEqual(menorEsperado, leiloeiro.MenorLance, 0.0001);
         }
@@ -48,6 +54,15 @@ namespace Caelum.Leilao
         [Test]
         public void DeveAcertarOValorMedioDosLances()
         {
+            Leilao leilao = new CriadorDeLeilao().Para("Playstation 3 Novo")
+            .Lance(maria, 250.0)
+            .Lance(joao, 300.0)
+            .Lance(maria, 400.0)
+            .Constroi();
+
+            // executando a acao 
+            leiloeiro.Avalia(leilao);
+
             double valorMedioEsperado = 316.666666666;
             Assert.AreEqual(valorMedioEsperado, leiloeiro.ValorMedioLance, 0.0001);
         }
@@ -55,12 +70,10 @@ namespace Caelum.Leilao
         [Test]
         public void DeveEntenderLeilaoComApenasUmLance()
         {
-            Usuario joao = new Usuario("Braan");
-            Leilao leilao = new Leilao("Playstation 4 Pro Novo");
+            Leilao leilao = new CriadorDeLeilao().Para("Playstation 3 Novo")
+            .Lance(joao, 250.0)
+            .Constroi();
 
-            leilao.Propoe(new Lance(joao, 250));
-
-            Avaliador leiloeiro = new Avaliador();
             leiloeiro.Avalia(leilao);
 
             Assert.AreEqual(250, leiloeiro.MaiorLance, 0.0001);
@@ -111,6 +124,7 @@ namespace Caelum.Leilao
         }
 
         [Test]
+        [Ignore("Agora o método avalia lança uma exceção caso o leilão não possua lances")]
         public void DeveDevolverUmaListaVazia()
         {
             Usuario joao = new Usuario("João");
@@ -164,6 +178,16 @@ namespace Caelum.Leilao
 
             Assert.AreEqual(400, leiloeiro.MaiorLance, 0.00001);
             Assert.AreEqual(100, leiloeiro.MenorLance, 0.00001);
+        }
+
+        [Test]
+        public void DeveLancarUmaExcessaoCasoLeilaoNaoPossuaLances()
+        {
+            var leilao = new CriadorDeLeilao()
+                .Para("Nintendo Swift")
+                .Constroi();
+
+            Assert.Throws<Exception>(() => leiloeiro.Avalia(leilao));
         }
 
 

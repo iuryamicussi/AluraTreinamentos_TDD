@@ -148,6 +148,22 @@ namespace Caelum.Leilao.Tests
             Assert.AreEqual(1000, leilao.Lances[0].Valor, 0.0001);
         }
 
+        [Test]
+        public void DeveLancarArgumentExceptionCasoLanceComValor0()
+        {
+            var leilao = new CriadorDeLeilao().Para("Geladeira").Constroi();
+
+            Assert.Throws<ArgumentException>(() => leilao.Propoe(new Lance(new Usuario("Joao"), 0)));
+        }
+
+        [Test]
+        public void DeveLancarArgumentExceptionCasoLanceComValorMenorQue0()
+        {
+            var leilao = new CriadorDeLeilao().Para("Geladeira").Constroi();
+
+            Assert.Throws<ArgumentException>(() => leilao.Propoe(new Lance(new Usuario("Joao"), -100)));
+        }
+
 
     }
 }
